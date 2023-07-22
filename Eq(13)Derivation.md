@@ -2,7 +2,7 @@
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-07-16 16:27:41
  * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-07-22 09:23:56
+ * @LastEditTime: 2023-07-22 21:30:20
  * @Description: 
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -117,7 +117,16 @@ $$
 \begin{aligned}
     \dot{V}(x) &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{n} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
     &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{j} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 1}^{n} \varepsilon_{k} \mathrm{Re} \left( \Vert c_{j} \Vert^{2} \vec{v}_{j}^{H} A_{i} \vec{v}_{j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 1}^{n} \varepsilon_{k} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \mathrm{Re} \left( \Vert c_{j} \Vert^{2} \vec{v}_{j}^{H} A_{i} \vec{v}_{j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+\end{aligned}
+$$
+
+The former term $2 \sum_{j = 1}^{n} \varepsilon_{k} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)$ can be rewritten as:
+
+$$
+\begin{aligned}
+    2 \sum_{j = 1}^{n} \varepsilon_{k} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) &= 2 \varepsilon_{1} \Vert c_{1} \Vert^{2} \mathrm{Re} \left( \lambda_{i,1} \right) + 2 \sum_{j = 2}^{n} \varepsilon_{j} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) \\
+    &= 2 \varepsilon_{1} \Vert c_{1} \Vert^{2} \mathrm{Re} \left( \lambda_{i,1} \right) + \sum_{j = 2}^{n} \varepsilon_{j} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \sum_{k = 2}^{n} \varepsilon_{k} \Vert c_{k} \Vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right) \\
 \end{aligned}
 $$
