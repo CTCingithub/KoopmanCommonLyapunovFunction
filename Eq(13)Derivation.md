@@ -2,7 +2,7 @@
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-07-16 16:27:41
  * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-07-22 00:06:52
+ * @LastEditTime: 2023-07-22 09:23:56
  * @Description: 
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -51,7 +51,7 @@ $$
 \end{aligned}
 $$
 
-Assume that $||\vec{v}_{j}||=1$ (NOT MENTIONED IN SOURCE PAPER). Then,
+Assume that $\Vert \vec{v}_{j} \Vert=1$ (MENTIONED LATER IN SOURCE PAPER). Then,
 
 $$
 \begin{aligned}
@@ -108,5 +108,16 @@ $$
     &= \vec{v}_{j}^{H} (A_{i} \vec{v}_{i,j}) \\
     &= \vec{v}_{j}^{H} \lambda_{i,j} \vec{v}_{i,j} \\
     &= \lambda_{i,j}
+\end{aligned}
+$$
+
+We're able to rewrite $\dot{V}(x)$ now:
+
+$$
+\begin{aligned}
+    \dot{V}(x) &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{n} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{j} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{k} \mathrm{Re} \left( \Vert c_{j} \Vert^{2} \vec{v}_{j}^{H} A_{i} \vec{v}_{j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{k} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
 \end{aligned}
 $$
