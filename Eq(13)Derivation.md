@@ -2,7 +2,7 @@
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-07-16 16:27:41
  * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-07-23 17:44:34
+ * @LastEditTime: 2023-07-24 17:40:23
  * @Description: 
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -117,8 +117,8 @@ $$
 \begin{aligned}
     \dot{V}(\vec{x}) &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{n} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
     &= 2 \sum_{j = 1}^{n} \sum_{k = 1}^{j} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \mathrm{Re} \left( \Vert c_{j} \Vert^{2} \vec{v}_{j}^{H} A_{i} \vec{v}_{j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \mathrm{Re} \left( \vert c_{j} \vert^{2} \vec{v}_{j}^{H} A_{i} \vec{v}_{j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
 \end{aligned}
 $$
 
@@ -137,11 +137,11 @@ We noticed that
 
 $$
 \begin{aligned}
-    \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \Vert c_{k} \Vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1}
-    &= \sum_{j = 2}^{n} (j - 1) \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + \sum_{j = 2}^{n} (n - j) \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + (n - 1) \left. \left[ \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} \right] \right \vert_{j = 1} \\
-    &= \sum_{j = 2}^{n} (n - 1) \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + \left. \left[ \varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) \right] \right \vert_{j = 1} \\
-    &= \sum_{j = 2}^{n} \varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \left. \left[ \varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) \right] \right \vert_{j = 1} \\
-    &= \sum_{j = 1}^{n} \varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)
+    \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \vert c_{k} \vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1}
+    &= \sum_{j = 2}^{n} (j - 1) \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + \sum_{j = 2}^{n} (n - j) \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + (n - 1) \left. \left[ \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} \right] \right \vert_{j = 1} \\
+    &= \sum_{j = 2}^{n} (n - 1) \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)}{n - 1} + \left. \left[ \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) \right] \right \vert_{j = 1} \\
+    &= \sum_{j = 2}^{n} \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \left. \left[ \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) \right] \right \vert_{j = 1} \\
+    &= \sum_{j = 1}^{n} \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)
 \end{aligned}
 $$
 
@@ -149,8 +149,42 @@ Therefore, $\dot{V}(\vec{x})$ can be written as
 
 $$
 \begin{aligned}
-    \dot{V}(\vec{x}) &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \Vert c_{j} \Vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \Vert c_{k} \Vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1} + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
-    &= 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \left[ \frac{\varepsilon_{j} \lVert c_{j} \rVert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \Vert c_{k} \Vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1} + \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \right]
+    \dot{V}(\vec{x}) &= 2 \sum_{j = 1}^{n} \varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \vert c_{k} \vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1} + 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \\
+    &= 2 \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} \left[ \frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \vert c_{k} \vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1} + \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) \right]
 \end{aligned}
+$$
+
+If $\forall j \in \{2, 3, \cdots, n \}$, there exists
+
+$$
+\frac{\varepsilon_{j} \vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right) + \varepsilon_{k} \vert c_{k} \vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{n - 1} + \varepsilon_{k} \mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right) < 0.
+$$
+
+The switching system is stable since our Lyapunov function $V(\vec{x})$ fulfills $V(\vec{x}) > 0$ and $\dot{V}(\vec{x}) < 0$.
+
+The author chose $\varepsilon_{1} > 0$ arbitrarily, and proceed **recursively** to select $\varepsilon_{j}$, $j = 2, \cdots, n$, so that
+
+$$
+\begin{aligned}
+    \varepsilon_{j} &> \varepsilon_{k} \left[- \frac{\vert c_{k} \vert^{2} \mathrm{Re} \left( \lambda_{i,k} \right)}{\vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)} + (n - 1) \frac{\mathrm{Re} \left( c_{j} c_{k}^{H} \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right)}{\vert c_{j} \vert^{2} \mathrm{Re} \left( \lambda_{i,j} \right)} \right] \qquad (\lambda_{i,j} < 0) \\
+    &= \varepsilon_{k} \left[- \frac{\mathrm{Re} \left( \lambda_{i,k} \right)}{\mathrm{Re} \left( \lambda_{i,j} \right)} \frac{\vert c_{k} \vert^{2}}{\vert c_{j} \vert^{2}} + (n - 1) \frac{\mathrm{Re} \left(\vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right)}{\mathrm{Re} \left( \lambda_{i,j} \right)} \frac{\vert c_{k} \vert}{\vert c_{j} \vert} \right] \qquad (c_{j} \in \mathbb{R}) \\
+    &:= \varepsilon_{k} F \left(\frac{\vert c_{k} \vert}{\vert c_{j} \vert} \right)
+\end{aligned}
+$$
+
+$F \left(\frac{\vert c_{k} \vert}{\vert c_{j} \vert} \right)$ is a quadratic function about $\frac{\vert c_{k} \vert}{\vert c_{j} \vert}$, whose maximum is
+
+$$
+\begin{aligned}
+    F_{max} &= \left. \left[ - \frac{b^{2}}{4a} \right] \right \vert_{a = - \frac{\mathrm{Re} \left( \lambda_{i,k} \right)}{\mathrm{Re} \left( \lambda_{i,j} \right)}, b = (n - 1) \frac{\mathrm{Re} \left(\vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right)}{\mathrm{Re} \left( \lambda_{i,j} \right)}} \\
+    &= \frac{(n - 1)^{2}}{4} \frac{\mathrm{Re} \left(\vec{v}_{k}^{H} A_{i} \vec{v}_{j} \right)^{2}}{\mathrm{Re} \left( \lambda_{i,j} \right) \mathrm{Re} \left( \lambda_{i,k} \right)} \\
+    &= \frac{(n - 1)^{2}}{4} \frac{\vert \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \vert^{2}}{\vert \mathrm{Re} \left( \lambda_{i,j} \right) \vert \vert \mathrm{Re} \left( \lambda_{i,k} \right) \vert} \\
+\end{aligned}
+$$
+
+Equation (13) is proven. We can choose
+
+$$
+\varepsilon_{j} > \max_{i \in \{1, \cdots, m \} \atop k \in  \{1, \cdots, j - 1 \}} \varepsilon_{k} \frac{(n - 1)^{2}}{4} \frac{\vert \vec{v}_{k}^{H} A_{i} \vec{v}_{j} \vert^{2}}{\vert \mathrm{Re} \left( \lambda_{i,j} \right) \vert \vert \mathrm{Re} \left( \lambda_{i,k} \right) \vert}
 $$
