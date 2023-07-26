@@ -43,10 +43,10 @@ def EpsilonJPossible(i, j, k, EpsilonInputArray, v_Vectors, SystemMatrixes,
 
 def IsEqual(vector1, vector2, tol=1e-5):
     #* 检查两个向量是否相等，若相减后二范数小于tol，则返回True
-    return (torch.linalg.vector_norm(vector1 - vector2)).numpy() - tol < 0
+    return (torch.linalg.vector_norm(vector1 - vector2)).numpy() < tol
 
 
-def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5):
+def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
     #* 用于求解一系列矩阵共同的特征向量，以及对应的特征值
     #? 返回除了Blacklist之外，第一个特征向量，及对应的特征值
     # MatrixSet是所有矩阵的元组
@@ -91,7 +91,11 @@ def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5):
                             Lambdas[OccurTimes, :] = EigenValues[k2, k1]
                             OccurTimes = OccurTimes + 1
                 if OccurTimes == MatrixNum:
-                    return EigenVectors[i, :, j].reshape(-1, 1), Lambdas
+                    EigenVectorsOutput = EigenVectors[i, :, j].reshape(-1, 1)
+                    LambdasOutput = Lambdas.reshape(1, -1)
+                    EigenVectorsOutput = EigenVectorsOutput.to(device)
+                    LambdasOutput = LambdasOutput.to(device)
+                    return EigenVectorsOutput, LambdasOutput
 
     print("No Common Eigenvectors!")
 
@@ -109,8 +113,8 @@ class ObtainInvariantMaximalFlag:
         self.n = matrixset[0].shape[0]
 
     def MatrixSet(self):
+        #* 将输入的matrixset转为tensor类型，并在指定device上运算
         MatrixSet = ()
-        print(self.device)
         for i in range(self.m):
             if type(self.MatrixSetInput[i]) != torch.Tensor:
                 temp = torch.from_numpy(self.MatrixSetInput[i])
@@ -119,19 +123,58 @@ class ObtainInvariantMaximalFlag:
             temp = temp.to(self.device)
             MatrixSet = MatrixSet + (temp, )
         return MatrixSet
-    
-    def ComputeMatrixSet(self,P):
+
+    def GetPMatrix(self, V):
+        #* 从V矩阵计算P矩阵
+        return V @ (V.conj().T @ V) @ V.conj().T
+
+    def GetMatrixSet(self, P):
+        #* 更新要求共同特征向量的矩阵元组
+        NewMatrixSet = ()
         for i in range(self.m):
-            pass
+            temp = (torch.eye(self.n).to(self.device) -
+                    P) @ self.MatrixSet()[i].to(self.device)
+            temp = temp.to(self.device)
+            NewMatrixSet = NewMatrixSet + (temp, )
+        return NewMatrixSet
 
     def ComputeFlagInfo(self):
+        #* 计算共同特征向量组成的矩阵V_Matrix，以及对应特征值组成的矩阵Lambda_Matrix
         for i in range(self.n):
             if i == 0:
-                v_temp, lambda_temp = GetCommonEigenInfo(
-                    self.MatrixSet(), self.tol)
+                MatrixSet_temp = self.MatrixSet()
+                v_temp, lambda_temp = GetCommonEigenInfo(MatrixSet_temp,
+                                                         tol=self.tol,
+                                                         device=self.device)
                 V_Matrix = v_temp.reshape(-1, 1)
                 Lambda_Matrix = lambda_temp.reshape(1, -1)
-                P_Matrix = V_Matrix @ torch.linalg.inv(
-                    V_Matrix.conj().T @ V_Matrix) @ V_Matrix.conj().T
+                P_Matrix = self.GetPMatrix(V_Matrix)
+
+                print(V_Matrix)
+                print(Lambda_Matrix)
+                print(P_Matrix)
             else:
-                pass
+                MatrixSet_temp = self.GetMatrixSet(P_Matrix)
+
+
+                print(MatrixSet_temp)
+                print(V_Matrix)
+                v_temp, lambda_temp = GetCommonEigenInfo(MatrixSet_temp,
+                                                         Blacklist=V_Matrix,
+                                                         tol=self.tol,
+                                                         device=self.device)
+
+                print(v_temp.device, lambda_temp.device)
+                print("3")
+                V_Matrix = torch.concatenate((V_Matrix, v_temp), dim=1)
+                print("4")
+                Lambda_Matrix = torch.concatenate((Lambda_Matrix, lambda_temp),
+                                                  dim=0)
+                print("5")
+                P_Matrix = self.GetPMatrix(V_Matrix)
+
+                print(V_Matrix)
+                print(Lambda_Matrix)
+                print(P_Matrix)
+
+        return V_Matrix, Lambda_Matrix
