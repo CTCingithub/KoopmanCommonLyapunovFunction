@@ -7,6 +7,8 @@ Description:
 
 Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
 """
+
+import itertools
 import torch
 
 
@@ -24,8 +26,14 @@ def Normalize(Vector):
     return Vector / length
 
 
-def EpsilonJPossible(i, j, k, EpsilonInputArray, v_Vectors, SystemMatrixes,
-                     Lambdas):
+def EpsilonJPossible(i,
+                     j,
+                     k,
+                     EpsilonInputArray,
+                     v_Vectors,
+                     SystemMatrixes,
+                     Lambdas,
+                     Device='cpu'):
     #* 用于计算$\varepsilon_{j}$可能的取值
     # i,j,k表示公式中的i,j,k下标，从1开始
     # EpsilonInputArray是计算时候输入的$\epsilon_{k}$的序列，不断迭代更新
@@ -33,20 +41,24 @@ def EpsilonJPossible(i, j, k, EpsilonInputArray, v_Vectors, SystemMatrixes,
     # $v_{j}$等表示求maximal invarient flag时对应的特征向量，合并为v_Vectors
     # $\lambda_{i,j}$表示共同的特征向量对应的特征值，放到一个下三角的Lambdas矩阵里
     # 系统的维数$n$靠几个输入量读出来
-    n = torch.tensor(v_Vectors.shape[0])
-    vkConjTransAivj = v_Vectors[:, k - 1].conj().T @ SystemMatrixes[
-        j - 1] @ v_Vectors[:, j - 1]
-    return EpsilonInputArray[k - 1] * torch.pow(
-        n - 1, 2) * vkConjTransAivj / (torch.abs(Lambdas[i - 1, j - 1].real) *
-                                       torch.abs(Lambdas[i - 1, k - 1].real))
+    n = torch.tensor(v_Vectors.shape[0], device=Device)
+    vkConjTransAivj = v_Vectors[:, k - 1].reshape(
+        -1, 1).conj().T @ SystemMatrixes[i - 1] @ v_Vectors[:, j - 1].reshape(
+            -1, 1)
+    vkConjTransAivj = vkConjTransAivj.to(Device)
+    return (EpsilonInputArray[k - 1].to(Device) * torch.pow(n - 1, 2) / 4 *
+            torch.pow(torch.abs(vkConjTransAivj), 2) /
+            (torch.abs(Lambdas[i - 1, j - 1].real) *
+             torch.abs(Lambdas[i - 1, k - 1].real)).to(Device))[0, 0]
 
 
 def IsEqual(vector1, vector2, tol=1e-5):
     #* 检查两个向量是否相等，若相减后二范数小于tol，则返回True
-    return (torch.linalg.vector_norm(vector1 - vector2)).numpy() < tol
+    return (torch.linalg.vector_norm(vector1 - vector2)).to('cpu') < tol
 
 
-def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
+def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, Device="cpu"):
+    # sourcery skip: low-code-quality
     #* 用于求解一系列矩阵共同的特征向量，以及对应的特征值
     #? 返回除了Blacklist之外，第一个特征向量，及对应的特征值
     # MatrixSet是所有矩阵的元组
@@ -54,8 +66,8 @@ def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
     # 初始化
     MatrixNum = len(MatrixSet)
     n = MatrixSet[0].shape[0]
-    EigenVectors = torch.zeros((MatrixNum, n, n))
-    EigenValues = torch.zeros((n, MatrixNum))
+    EigenVectors = torch.zeros((MatrixNum, n, n), device=Device)
+    EigenValues = torch.zeros((n, MatrixNum), device=Device)
 
     # 计算所有矩阵的特征值和特征向量
     for i in range(MatrixNum):
@@ -69,11 +81,11 @@ def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
 
     # 去掉所有Blacklist中的向量
     if Blacklist != None:
-        for i in range(Blacklist.shape[1]):
-            for j in range(MatrixNum):
-                for k in range(n):
-                    if IsEqual(Blacklist[:, i], EigenVectors[j, :, k], tol):
-                        EigenValues[k, j] = 0
+        for i, j in itertools.product(range(Blacklist.shape[1]),
+                                      range(MatrixNum)):
+            for k in range(n):
+                if IsEqual(Blacklist[:, i], EigenVectors[j, :, k], tol):
+                    EigenValues[k, j] = 0
 
     # 查特征向量出现的次数
     # 查找对应特征值不为0的特征向量
@@ -83,7 +95,7 @@ def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
                 # 统计该特征向量出现次数
                 OccurTimes = 0
                 # 统计特征向量对应的特征值
-                Lambdas = torch.zeros((MatrixNum, 1))
+                Lambdas = torch.zeros((MatrixNum, 1), device=Device)
                 for k1 in range(MatrixNum):
                     for k2 in range(n):
                         if IsEqual(EigenVectors[i, :, j],
@@ -92,9 +104,7 @@ def GetCommonEigenInfo(MatrixSet, Blacklist=None, tol=1e-5, device="cpu"):
                             OccurTimes = OccurTimes + 1
                 if OccurTimes == MatrixNum:
                     EigenVectorsOutput = EigenVectors[i, :, j].reshape(-1, 1)
-                    LambdasOutput = Lambdas.reshape(1, -1)
-                    EigenVectorsOutput = EigenVectorsOutput.to(device)
-                    LambdasOutput = LambdasOutput.to(device)
+                    LambdasOutput = Lambdas.reshape(-1, 1)
                     return EigenVectorsOutput, LambdasOutput
 
     print("No Common Eigenvectors!")
@@ -111,6 +121,12 @@ class ObtainInvariantMaximalFlag:
         self.device = SelectDevice(device)
         self.m = len(matrixset)
         self.n = matrixset[0].shape[0]
+
+    def InitialCoefficients(self, InitiCoeff):
+        if type(InitiCoeff) != torch.Tensor:
+            return torch.from_numpy(InitiCoeff).to(self.device)
+        else:
+            return InitiCoeff.to(self.device)
 
     def MatrixSet(self):
         #* 将输入的matrixset转为tensor类型，并在指定device上运算
@@ -145,36 +161,47 @@ class ObtainInvariantMaximalFlag:
                 MatrixSet_temp = self.MatrixSet()
                 v_temp, lambda_temp = GetCommonEigenInfo(MatrixSet_temp,
                                                          tol=self.tol,
-                                                         device=self.device)
+                                                         Device=self.device)
                 V_Matrix = v_temp.reshape(-1, 1)
-                Lambda_Matrix = lambda_temp.reshape(1, -1)
-                P_Matrix = self.GetPMatrix(V_Matrix)
-
-                print(V_Matrix)
-                print(Lambda_Matrix)
-                print(P_Matrix)
+                Lambda_Matrix = lambda_temp.reshape(-1, 1)
             else:
                 MatrixSet_temp = self.GetMatrixSet(P_Matrix)
-
-
-                print(MatrixSet_temp)
-                print(V_Matrix)
                 v_temp, lambda_temp = GetCommonEigenInfo(MatrixSet_temp,
                                                          Blacklist=V_Matrix,
                                                          tol=self.tol,
-                                                         device=self.device)
-
-                print(v_temp.device, lambda_temp.device)
-                print("3")
+                                                         Device=self.device)
                 V_Matrix = torch.concatenate((V_Matrix, v_temp), dim=1)
-                print("4")
                 Lambda_Matrix = torch.concatenate((Lambda_Matrix, lambda_temp),
-                                                  dim=0)
-                print("5")
-                P_Matrix = self.GetPMatrix(V_Matrix)
-
-                print(V_Matrix)
-                print(Lambda_Matrix)
-                print(P_Matrix)
+                                                  dim=1)
+            P_Matrix = self.GetPMatrix(V_Matrix)
 
         return V_Matrix, Lambda_Matrix
+
+    def LyapunovFunCoeff(self, InitiCoeff):
+        #* 计算Lyapunov函数中各项的系数
+        V_Matrix, Lamba_Matrix = self.ComputeFlagInfo()
+        for j in range(1, self.n + 1):
+            if j == 1:
+                Coefficients = self.InitialCoefficients(InitiCoeff)
+            else:
+                #? 将$\varepsilon_{j}$可能的取值放在矩阵temp中
+                temp = torch.zeros((self.n, self.m), device=self.device)
+                for i in range(1, self.m + 1):
+                    for k in range(1, j):
+                        value_temp = EpsilonJPossible(i,
+                                                      j,
+                                                      k,
+                                                      Coefficients,
+                                                      V_Matrix,
+                                                      self.MatrixSet(),
+                                                      Lamba_Matrix,
+                                                      Device=self.device)
+                        temp[k - 1, i - 1] = value_temp
+                #! 最初赋的值也要参与比较大小，把temp变为行向量，最后添加最初赋值
+                temp = torch.concatenate((temp.reshape(1, -1),
+                                          torch.tensor([[Coefficients[j - 1]]],
+                                                       device=self.device)),
+                                         dim=1)
+                Coefficients[j - 1] = torch.max(temp)
+
+        return Coefficients
