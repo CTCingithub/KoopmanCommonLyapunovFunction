@@ -177,12 +177,18 @@ class ObtainInvariantMaximalFlag:
 
         return V_Matrix, Lambda_Matrix
 
-    def LyapunovFunCoeff(self, InitiCoeff):
+    def LyapunovFunCoeff(self, InitiCoeff, PrintLog=False):
         #* 计算Lyapunov函数中各项的系数
         V_Matrix, Lamba_Matrix = self.ComputeFlagInfo()
+        Coefficients = self.InitialCoefficients(InitiCoeff)
         for j in range(1, self.n + 1):
+            if PrintLog:
+                print("==========================================")
+                print("j =", j, "\n")
+                print("initial value =", Coefficients[j - 1].numpy(), "\n")
             if j == 1:
-                Coefficients = self.InitialCoefficients(InitiCoeff)
+                if PrintLog:
+                    print("value =", Coefficients[0].to('cpu').numpy(), "\n")
             else:
                 #? 将$\varepsilon_{j}$可能的取值放在矩阵temp中
                 temp = torch.zeros((self.n, self.m), device=self.device)
@@ -197,11 +203,25 @@ class ObtainInvariantMaximalFlag:
                                                       Lamba_Matrix,
                                                       Device=self.device)
                         temp[k - 1, i - 1] = value_temp
+                        if PrintLog:
+                            print("i =", i, ", j =", j, ", k =", k,
+                                  ", value =",
+                                  value_temp.to('cpu').numpy())
                 #! 最初赋的值也要参与比较大小，把temp变为行向量，最后添加最初赋值
                 temp = torch.concatenate((temp.reshape(1, -1),
                                           torch.tensor([[Coefficients[j - 1]]],
                                                        device=self.device)),
                                          dim=1)
                 Coefficients[j - 1] = torch.max(temp)
+
+                if PrintLog:
+                    print("\nValue should be",
+                          Coefficients[j - 1].to('cpu').numpy(), "\n")
+
+        if PrintLog:
+            print("\n\n******************************** ********************")
+            print("Coefficients should be:")
+            print(Coefficients.to('cpu').numpy())
+            print("****************************************************")
 
         return Coefficients
