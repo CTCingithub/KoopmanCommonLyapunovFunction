@@ -2,7 +2,7 @@
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-07-16 16:27:41
  * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-07-24 17:40:23
+ * @LastEditTime: 2023-08-03 14:57:31
  * @Description: 
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -129,7 +129,7 @@ $$
     \sum_{j = 2}^{n} \sum_{k = 1}^{j - 1} f(k) &= \underbrace{f(1)}_{j = 2} + \underbrace{f(1) + f(2)}_{j = 3} + \cdots + \underbrace{f(1) + f(2) + \cdots + f(n - 1)}_{j = n} \\
     &= (n - 1) f(1) + (n - 2) f(2) + \cdots + \left(n - (n - 1) \right) f(n - 1) + \left(n - n \right) f(n) \\
     &= \sum_{j' = 1}^{n} (n - j') f(n) \\
-    &= (n - 1) f(1) + \sum_{j = 1}^{n} (n - j) f(n)
+    &= (n - 1) f(1) + \sum_{j = 2}^{n} (n - j) f(n)
 \end{aligned}
 $$
 

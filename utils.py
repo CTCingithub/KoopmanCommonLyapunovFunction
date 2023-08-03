@@ -35,7 +35,7 @@ def EpsilonJPossible(i,
                      Lambdas,
                      Device='cpu'):
     #* 用于计算$\varepsilon_{j}$可能的取值
-    # i,j,k表示公式中的i,j,k下标，从1开始
+    #! i,j,k表示公式中的i,j,k下标，从1开始
     # EpsilonInputArray是计算时候输入的$\epsilon_{k}$的序列，不断迭代更新
     # SystemMatrixes表示线性切换系统子系统的系统矩阵
     # $v_{j}$等表示求maximal invarient flag时对应的特征向量，合并为v_Vectors
@@ -185,7 +185,8 @@ class ObtainInvariantMaximalFlag:
             if PrintLog:
                 print("==========================================")
                 print("j =", j, "\n")
-                print("initial value =", Coefficients[j - 1].numpy(), "\n")
+                print("initial value =", Coefficients[j - 1].to('cpu').numpy(),
+                      "\n")
             if j == 1:
                 if PrintLog:
                     print("value =", Coefficients[0].to('cpu').numpy(), "\n")
