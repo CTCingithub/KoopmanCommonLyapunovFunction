@@ -2,7 +2,7 @@
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-08-05 16:16:25
  * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-08-09 20:10:21
+ * @LastEditTime: 2023-09-13 14:11:25
  * @Description: Koopman Common Control Lyapunov Function
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -196,6 +196,7 @@ The concatenated matrix $\begin{bmatrix}
    C & \mathbf{0}
 \end{bmatrix}$ includes vital information of desired higher-dimensional control system.
 
+<!--
 $$
 \begin{aligned}
    \vec{z}'_{N \times 1} &= A_{N \times N} \vec{z}_{N \times 1} + B_{N \times M} \vec{u}_{M \times 1} \\
@@ -228,5 +229,10 @@ $$
    \end{pmatrix}
 \end{aligned}
 $$
+-->
 
-This is VERY VERY VERY UGLY. Eigenvalue of this disgusting matrix is meaningless. I wanted to write a general mapping for MPC cases, but failed.
+It's impossible to convert a state-space function to an autonomous system directly. However, it's still possible to convert a system under switched control to a switched autonomous system, given the relationship between feedback $\vec{u}$ and states $\vec{x}$. Suppose they follows a nonlinear feedback design $\{ \vec{u}_{i} = f_{i} (\vec{x}) \}$. Moreover, as the lifting function set $\{ z_{j} (\vec{x}) \}$ fullfills orthogonality and constructs a Hibert space, usually refered as measurement space or lifting space, we're able to expand elements of the control input $\vec{u}$ in terms of our measurement functions, written as
+
+$$
+u_{i} = f_{i} (\vec{x}) = 
+$$
