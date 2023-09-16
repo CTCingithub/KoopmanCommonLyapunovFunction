@@ -1,8 +1,8 @@
 <!--
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-08-05 16:16:25
- * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-09-13 14:11:25
+ * @LastEditors: CTC_322 2130227@tongji.edu.cn
+ * @LastEditTime: 2023-09-17 00:07:27
  * @Description: Koopman Common Control Lyapunov Function
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -107,7 +107,7 @@ For autonomous systems, we can derive and improve a linear approximation of Koop
 7. Reconstruct the high-dimensional DMD modes $\Phi$ according to:
 
    $$
-   \Phi_{n \times r} = X'_{n \times m} \tilde{V}_{m \times r} (\tilde{\Sigma}_{r \times r})^{-1} W_{r \times r},
+   \Phi_{N \times r} = X'_{N \times m} \tilde{V}_{m \times r} (\tilde{\Sigma}_{r \times r})^{-1} W_{r \times r},
    $$
 
    We can verify that these DMD modes are eigenvectors of the high-dimensional $A$ matrix corresponding to the eigenvalues in $\Lambda$:
@@ -120,6 +120,7 @@ For autonomous systems, we can derive and improve a linear approximation of Koop
    & = \Phi \Lambda
    \end{aligned}
    $$
+
 8. We can obtain a sparser higher-dimensional dynamics by improving our lifting function with DMD mode $\Phi$.
 
    $$
@@ -130,17 +131,18 @@ For autonomous systems, we can derive and improve a linear approximation of Koop
    \end{aligned}
    $$
 
-   Define $\vec{z} = \Phi^{\dagger} \vec{y}$. $\vec{z} = \vec{z}(\vec{x})$ is our enhanced lifting function. $\vec{z}$ provides better sparity as they should satisfy:
+   Define $\vec{\varphi} = \Phi^{\dagger} \vec{y}$. Elements of $\vec{\varphi} = \vec{\varphi}(\vec{x})$ are the Koopman eigenfuctions. $\vec{\varphi}$ provides better sparity as they should satisfy:
 
    $$
-   \vec{z}'_{r \times 1} = \Lambda_{r \times r} \vec{z}_{r \times 1}.
+   \vec{\varphi}'_{r \times 1} = \Lambda_{r \times r} \vec{\varphi}_{r \times 1}.
    $$
 
-9. Our identification and approximation is based on discrete-time snapshots. We can obtain a higher-dimensional linear continuous-time system:
+<!--
+9. Our identification and approximation is based on discrete-time snapshots. We can obtain a higher-dimensional linear continuous-time system if all diagonal elements of $\Lambda$ is positive(This is a very rare case, and not desired as the system is unstable):
 
    $$
    \begin{aligned}
-      e^{\mathcal{A} \Delta t} \vec{z} &= \Lambda \vec{z} \\
+      e^{\mathcal{A} \Delta t} \vec{\varphi} &= \Lambda \vec{\varphi} \\
       e^{\mathcal{A} \Delta t} &= \mathrm{diag} (\Lambda_{1}, \Lambda_{2}, \cdots, \Lambda_{r}) \\
       \Rightarrow \mathcal{A} &= \frac{1}{\Delta t} \mathrm{diag} \bigg(\ln(\Lambda_{1}), \ln(\Lambda_{2}), \cdots, \ln(\Lambda_{r}) \bigg)
    \end{aligned}
@@ -149,8 +151,25 @@ For autonomous systems, we can derive and improve a linear approximation of Koop
    Linear continuous-time system is
 
    $$
-   \dot{\vec{z}} = \mathcal{A} \vec{z}
+   \dot{\vec{\varphi}} = \mathcal{A} \vec{\varphi}
    $$
+-->
+
+We managed to exact a enhanced set of measurement functions with snapshot data, and derived a linear discrete system. However, we desire a continuous-time form approximation for further discussion. Suppose $\vec{y} (\vec{x})$ follows:
+
+$$
+\dot{\vec{y}} = \mathcal{A} \vec{y}.
+$$
+
+With DMD mode $\Phi$, we're still able to enhance our lifting fuction for sparser dynamical behavior in measurement space:
+
+$$
+\begin{aligned}
+   \Phi^{\dagger} \dot{\vec{y}} &= \Phi^{\dagger} \mathcal{A} \vec{y} \\
+   \frac{d (\Phi^{\dagger} \vec{y})}{d t} &= \left( \Phi^{\dagger} \mathcal{A} \Phi \right) (\Phi^{\dagger} \vec{y}) \\
+   \dot{\vec{\varphi}} &= \left( \Phi^{\dagger} \mathcal{A} \Phi \right) \vec{\varphi}.
+\end{aligned}
+$$
 
 ## 2. Systems with Input
 
@@ -168,13 +187,13 @@ $$
 \end{aligned}
 $$
 
-Koopman control system theory assumes that the original state vector $\vec{x}$ can be linearly expressed by its lifting function $\vec{z}$, as lifting function is a set of orthonormal functions. Such relationship is written as $\vec{x} = C \vec{z}$. Milan Korda managed to identify $A$,$B$ and $C$ simultaneously:
+Koopman control system theory assumes that the original state vector $\vec{x}$ can be linearly expressed by its lifting function $\vec{\varphi}$, as lifting function is a set of orthonormal functions. Such relationship is written as $\vec{x} = C \vec{\varphi}$. Milan Korda managed to identify $A$,$B$ and $C$ simultaneously:
 
 $$
 \begin{aligned}
    \left \{\begin{aligned}
       & \vec{z}' = A \vec{z} + B \vec{u}, \\
-      & \vec{x} = C \vec{z}.
+      & \vec{x} = C \vec{\varphi}.
    \end{aligned} \right. \\
    \Rightarrow \left \{\begin{aligned}
       & Z' = A Z + B Y, \\
@@ -199,12 +218,12 @@ The concatenated matrix $\begin{bmatrix}
 <!--
 $$
 \begin{aligned}
-   \vec{z}'_{N \times 1} &= A_{N \times N} \vec{z}_{N \times 1} + B_{N \times M} \vec{u}_{M \times 1} \\
+   \vec{\varphi}'_{N \times 1} &= A_{N \times N} \vec{\varphi}_{N \times 1} + B_{N \times M} \vec{u}_{M \times 1} \\
    \begin{pmatrix}
-      \vec{z}_{k + 1} \\
-      \vec{z}_{k + 2} \\
+      \vec{\varphi}_{k + 1} \\
+      \vec{\varphi}_{k + 2} \\
       \vdots \\
-      \vec{z}_{k + n_{future}} \\
+      \vec{\varphi}_{k + n_{future}} \\
       \vec{u}_{k} \\
       \vdots \\
       \vec{u}_{k + n_{future} - 1}
@@ -219,10 +238,10 @@ $$
       \mathbf{0} & \mathbf{0} & \cdots & \cdots & \cdots & \mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & I \\
       K_{2} & \mathbf{0} & \cdots & \cdots & \cdots & \mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0}
    \end{array} \right] \begin{pmatrix}
-      \vec{z}_{k} \\
-      \vec{z}_{k + 1} \\
+      \vec{\varphi}_{k} \\
+      \vec{\varphi}_{k + 1} \\
       \vdots \\
-      \vec{z}_{k + n_{future} - 1} \\
+      \vec{\varphi}_{k + n_{future} - 1} \\
       \vec{u}_{k - 1} \\
       \vdots \\
       \vec{u}_{k + n_{future} - 2}
@@ -231,8 +250,113 @@ $$
 $$
 -->
 
-It's impossible to convert a state-space function to an autonomous system directly. However, it's still possible to convert a system under switched control to a switched autonomous system, given the relationship between feedback $\vec{u}$ and states $\vec{x}$. Suppose they follows a nonlinear feedback design $\{ \vec{u}_{i} = f_{i} (\vec{x}) \}$. Moreover, as the lifting function set $\{ z_{j} (\vec{x}) \}$ fullfills orthogonality and constructs a Hibert space, usually refered as measurement space or lifting space, we're able to expand elements of the control input $\vec{u}$ in terms of our measurement functions, written as
+It's impossible to convert a state-space function to an autonomous system directly. However, it's still possible to convert a system under switched control to a switched autonomous system, given the relationship between feedback $\vec{u}$ and states $\vec{x}$. Suppose they follows a nonlinear feedback design $\{ \vec{u}_{i} = f_{i} (\vec{x}) \}$. Moreover, as the lifting function set $\{ z_{j} (\vec{x}) \}$ fulfils orthogonality and constructs a Hibert space, usually refered as measurement space or lifting space, we're able to expand elements of the control input $\vec{u}$ in terms of our measurement functions, written as
 
 $$
-u_{i} = f_{i} (\vec{x}) = 
+u_{i} = f_{i} (\vec{x}) = K_{i1} z_{1} (\vec{x}) + K_{i2} z_{x} (\vec{x}) + \cdots + K_{ir} z_{r} (\vec{x}) \\
+\Rightarrow \vec{u}_{m \times 1} (\vec{x}) = \begin{bmatrix}
+   K_{11} & K_{12} & \cdots & K_{1r} \\
+   K_{21} & K_{22} & \cdots & K_{2r} \\
+   \vdots & \vdots & \ddots & \vdots \\
+   K_{m1} & K_{m2} & \cdots & K_{mr}
+\end{bmatrix}_{m \times r} \begin{pmatrix}
+   z_{1} (\vec{x}) \\ z_{2} (\vec{x}) \\ \vdots \\ z_{r} (\vec{x})
+\end{pmatrix}_{r \times 1} = K_{m \times r} \vec{\varphi}_{r \times 1}.
+$$
+
+Then we're able to transform subsystems with control to autonomous subsystems:
+
+$$
+{}^{i} \! \vec{z}' = {}^{i} \! A {}^{i} \! \vec{z} + {}^{i} \! B {}^{i} \! \vec{u} = ({}^{i} \!A + {}^{i} \! B {}^{i} \! K) {}^{i} \! \vec{z} = {}^{i} \! \bar{A} {}^{i} \! \vec{z}.
+$$
+
+The equation above gives a discrete mapping of system's state variables' measurement before and after a specific constant time step. In a digital sampling system, this time step should be the sampling interval $\tau$. Then we're able to apply conclusions of autonomous systems to systems with input.
+
+<!--
+Therefore, if all discrete subsystems following ${}^{i} \! \vec{z}' = {}^{i} \! \bar{A} {}^{i} \! \vec{z}$ where ${}^{i} \! \bar{A}$ is logable, we can convert all these systems to continuous autonomous divergent systems, it's impossible to realize GUAS with switching.
+
+In a two-subsystem case, measurement $\vec{\varphi}$ may be the following form at a certain switching moment:
+
+$$
+\vec{\varphi} = {}^{1} \! \bar{A} {}^{2} \! \bar{A} {}^{1} \! \bar{A} {}^{1} \! \bar{A} {}^{2} \! \bar{A} {}^{2} \! \bar{A} \vec{\varphi}_{0}
+$$
+-->
+
+## 3. Construction of Common Measurement Space
+
+For a switched system $\{{}^{i} \!  \dot{\vec{x}} = {}^{i} \! f ({}^{i} \!  \vec{x})\} (i=1,2, \cdots)$ , we suppose the initial choice of measurement fuction is $\vec{y}_{N \times 1} = g(\vec{x})$, corresponding DMD mode matrix , eigenvalue matrix and eigenfuctions are ${}^{i} \! \Phi_{N \times r}$ , ${}^{i} \! \Lambda_{r \times r}$ and ${}^{i} \! \vec{\varphi}_{r \times 1}$.
+
+The dominanting problem is, the invariant subspaces may not be able to linearly transformed to each other, even though they may share a same rank (if we truncated to the same rank $r$ in former steps). In other words, it's possible that ${}^{1} \! \vec{\varphi}$ cannot be expanded with elements in ${}^{2} \! \vec{\varphi}$ for example.
+
+<!--
+We'll demonstrate how we managed to construct a common measurement space with the following 2-subsystem example.
+
+$$
+\vec{y} = g(\vec{x}) = \begin{pmatrix}
+   1 \\ x \\ x^{2} \\ x^{3}
+\end{pmatrix}, \\
+{}^{1} \! \Phi^{\dagger} = \begin{bmatrix}
+   1 & 0 & 2 & 0\\
+   0 & -4 & -1 & 2 \\
+   0 & 0 & 0 & -3
+\end{bmatrix}, \qquad
+{}^{2} \! \Phi^{\dagger} = \begin{bmatrix}
+   1 & 3 & 4 & 0\\
+   0 & 2 & -5 & 2 \\
+   0 & 0 & 0 & 3
+\end{bmatrix}.
+$$
+-->
+
+Our latter discussion is written in tensor form for simplicity, taking advantage of Einstein's summation convention. Koopman operator is defined through the following composition in discrete-time autonomous systems.
+
+$$
+K \circ g (\boldsymbol{x}) = K \circ g_{j} (\boldsymbol{x}) \boldsymbol{e}^{j} = g_{j} (F(\boldsymbol{x})) \boldsymbol{e}^{j}.
+$$
+
+With the introduction of tensor-style expression, we obtain a relatively simplier and concise equation, which the linear infinite-dimensional operator $K$'s finite-dimensional matric form approximation $A$ follows.
+
+$$
+\begin{aligned}
+   A_{ij} g_{j} (\boldsymbol{x}) \boldsymbol{e}^{j} &= g_{j} (F(\boldsymbol{x})) \boldsymbol{e}^{j} \\
+   \Rightarrow A_{ij} g_{j} (\boldsymbol{x}) &= g_{j} (F(\boldsymbol{x})).
+\end{aligned}
+$$
+
+Suppose there's a vector-shaped set of functions $\hat{g}$ defined in the initial measurement space $\{ g_{j} \}$. This function set can be utilized to define a new measurement space. The transformation between two coordinates is
+
+$$
+\hat{g} = \hat{g}_{j} \boldsymbol{e}^{j} = T_{ij} g_{j} \boldsymbol{e}^{j}.
+$$
+
+Where $T$ is the transformation matrix, which is $\Phi^{\dagger}$ in the first section. We focus more on subsystems' Koopman eigenfunctions for latter construction of a common measurement space.
+
+We have
+
+$$
+\begin{aligned}
+   K \circ \hat{g} &= K \circ \left( T_{ij} g_{j} \boldsymbol{e}^{j} \right) \\
+   &= T_{ij} \left( K \circ g_{j} \boldsymbol{e}^{j} \right) \\
+   &= T_{ij} A_{ij} g_{j} \boldsymbol{e}^{j}.
+\end{aligned}
+$$
+
+The new measurement space works if there exists a matrix $S$ satisfying $S T = I$.
+
+In a 2-subsystem case, we have
+
+$$
+{}^{1} \! S {}^{1} \! T = I, \qquad {}^{2} \! S {}^{2} \! T = I.
+$$
+
+Our target is to find a bilinear function $\Gamma ({}^{1} \! T, {}^{2} \! T)$, which satisfies
+
+$$
+\forall {}^{1} \! T, {}^{2} \! T \in M(r), \quad \Gamma ({}^{1} \! T, {}^{2} \! T) \in M(r'),
+$$
+
+Where
+
+$$
+M (i) = \{T \vert T \in \mathbb{R}^{i \times N}, \quad \exist S, \quad S T = I_{N \times N} \}, \qquad r \leq r' \leq N.
 $$
