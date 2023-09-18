@@ -1,8 +1,8 @@
 <!--
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-08-05 16:16:25
- * @LastEditors: CTC_322 2130227@tongji.edu.cn
- * @LastEditTime: 2023-09-17 00:07:27
+ * @LastEditors: CTC 2801320287@qq.com
+ * @LastEditTime: 2023-09-18 23:36:58
  * @Description: Koopman Common Control Lyapunov Function
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -15,7 +15,7 @@ Like common approximations of infinite-dimensional Koopman operators, data-drive
 
 ## 1. Autonomous Systems
 
-For autonomous systems, we can derive and improve a linear approximation of Koopman operator as follows:
+For autonomous systems, a common approach to derive and improve a linear approximation of Koopman operator is shown as follows:
 
 1. We assume the lifting function to be $\vec{y}_{N \times 1} = g(\vec{x}_{n \times 1})$. The lifted dynamics follows:
 
@@ -329,7 +329,7 @@ $$
 \hat{g} = \hat{g}_{j} \boldsymbol{e}^{j} = T_{ij} g_{j} \boldsymbol{e}^{j}.
 $$
 
-Where $T$ is the transformation matrix, which is $\Phi^{\dagger}$ in the first section. We focus more on subsystems' Koopman eigenfunctions for latter construction of a common measurement space.
+Where $T$ is the transformation matrix, which is $\Phi^{\dagger}$ in the first section.
 
 We have
 
@@ -359,4 +359,80 @@ Where
 
 $$
 M (i) = \{T \vert T \in \mathbb{R}^{i \times N}, \quad \exist S, \quad S T = I_{N \times N} \}, \qquad r \leq r' \leq N.
+$$
+
+For a simple example, in which
+$$
+g (\vec{x}) = \begin{pmatrix}
+   1 \\ x_{1} \\ x_{2} \\ x_{1}^{2} \\ x_{1} x_{2} \\ x_{2}^{2}
+\end{pmatrix}, \quad
+{}^{1} \! \varphi (\vec{x}) = \begin{pmatrix}
+   x_{1} \\
+   x_{2} + x_{2}^{2} \\
+   x_{1} + x_{1} x_{2}
+\end{pmatrix}, \quad
+{}^{2} \! \varphi (\vec{x}) = \begin{pmatrix}
+   x_{2} \\
+   x_{1} + x_{1} x_{2} \\
+   3 + x_{1}^{2}
+\end{pmatrix}.
+$$
+
+${}^{1} \! \varphi (\vec{x})$ and ${}^{2} \! \varphi (\vec{x})$ are 3-dimensional embedding of the 6-dimensional manifold $g (\vec{x})$, our new flow map should have a dimension bigger than 3 in order not to lose evolution on ${}^{1} \! \varphi (\vec{x})$ and ${}^{2} \! \varphi (\vec{x})$. Moreover, as we focus more on subsystems' Koopman eigenfunctions for latter construction of a common measurement space, the tangental space is obtained with our new measurement functions and ODEs the subsystems follow. Sparity doesn't play a vital role in the selection of new measurement functions.
+
+<!--
+Not finished!!!
+-->
+
+We designed a special procedure to obtain a common measurement space:
+
+1. For eigenfunctions ${}^{k} \! \varphi (\vec{x}) = {}^{k} \! T_{r \times N} g_{N \times 1} (\vec{x})$, we obtain the reduced row-echelon form of ${}^{k} \! T$ with Gaussian elimination, and call them ${}^{k} \! T'$.
+2. We define a $N \times N$ square matrix $G$. If the $i$-th column of a certain ${}^{k} \! T'$ is a $0$ vector, we delete the $i$-th row of $G$.
+
+Then we define $G g(\vec{x})$ to be our common measurement space.
+
+## 4. Sparse Identification of Koopman Eigenfunctions
+
+Researchers have been developing a variety of data-driven methods to identify Koopman eigenfunctions. Neural networks might be able to fit Koopman invariant subspaces, but lack explicit expressions. Therefore, we identify Koopman eigenfunctions with SINDy. We choose lifting function $g(\vec{x})$ as candidate functions $\Theta (\vec{x} $. Elements of Koopman eigenfunction $\varphi$, denoted as $\varphi_{j}$, follows
+
+$$
+\varphi_{j} (\vec{x}) = \vec{\xi}_{j}^{\top} \Theta (\vec{x}).
+$$
+
+Then we have
+
+$$
+\begin{aligned}
+   \frac{d \varphi_{j}}{d t} &= \lambda_{j} \varphi_{j} \\
+   \nabla_{\vec{x}} \varphi_{j} \frac{d \vec{x}}{d t} &= \lambda_{j} \varphi_{j} \\
+   \nabla_{\vec{x}} \left( \vec{\xi}_{j}^{\top} \Theta \right) f &= \lambda_{j} \vec{\xi}_{j}^{\top} \Theta \\
+   \Rightarrow \bigg( \left( \nabla_{\vec{x}} \Theta \right) f\bigg)^{\top} \vec{\xi}_{j} &= \lambda_{j} \Theta^{\top} \vec{\xi}_{j}.
+\end{aligned}
+$$
+
+We define
+
+$$
+\gamma_{1} (\vec{x}) = \Bigg( \bigg( \nabla_{\vec{x}} \Theta (\vec{x}) \bigg) f(\vec{x}) \Bigg), \qquad
+\gamma_{2} (\vec{x}) = \bigg( \Theta (\vec{x}) \bigg)^{\top}. \\
+\Gamma_{1} = [\underbrace{\gamma_{1} (\vec{x}_{1}), \quad \gamma_{1} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{1} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}], \\
+\Gamma_{2} = [\underbrace{\gamma_{2} (\vec{x}_{1}), \quad \gamma_{2} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{2} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}].
+$$
+
+The equation is simplified:
+
+$$
+\gamma_{1} (\vec{x}) \vec{\xi}_{j} = \gamma_{2} (\vec{x}) \lambda_{j} \vec{\xi}_{j}. \\
+\Downarrow \\
+\Gamma_{1} \vec{\xi}_{j} = \Gamma_{2} \lambda_{j} \vec{\xi}_{j}.
+$$
+
+Eigenpairs $\left( \lambda_{j}, \vec{\xi}_{j} \right)$ forms the eigen system of $\Gamma_{2}^{\dagger} \Gamma_{1}$. Eigenfunctions $\varphi (\vec{x})$ is
+
+$$
+\varphi (\vec{x}) = \begin{pmatrix}
+   \varphi_{1} (\vec{x}) \\ \vdots \\ \varphi_{j} (\vec{x}) \\ \vdots \\ \varphi_{r} (\vec{x})
+\end{pmatrix} = \begin{bmatrix}
+   \vec{\xi}_{1}^{\top} \\ \vdots \\ \vec{\xi}_{j}^{\top} \\ \vdots \\ \vec{\xi}_{r}^{\top}
+\end{bmatrix} \Theta (\vec{x}).
 $$
