@@ -1,8 +1,8 @@
 <!--
  * @Author: CTC 2801320287@qq.com
  * @Date: 2023-08-05 16:16:25
- * @LastEditors: CTC 2801320287@qq.com
- * @LastEditTime: 2023-09-18 23:36:58
+ * @LastEditors: CTC_322 2130227@tongji.edu.cn
+ * @LastEditTime: 2023-09-19 21:15:43
  * @Description: Koopman Common Control Lyapunov Function
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
@@ -61,8 +61,8 @@ For autonomous systems, a common approach to derive and improve a linear approxi
    where $H$ denotes the conjugate transpose, $r$ is the rank of truncation. The left singular vectors $U$ are known as POD modes. $U$, $\tilde{U}$, $V$ and $\tilde{V}$ are orthonormal, they satisfy:
 
    $$
-   U^{H} U = I_{N \times N}, \quad \tilde{U}^{H} \tilde{U} = I_{N \times N}, \\
-   V^{H} V = I_{m \times m}, \quad \tilde{V}^{H} \tilde{V} = I_{m \times m}.
+   U^{H} U = I_{m \times m}, \quad \tilde{U}^{H} \tilde{U} = I_{r \times r}, \\
+   V^{H} V = I_{m \times m}, \quad \tilde{V}^{H} \tilde{V} = I_{r \times r}.
    $$
 
 4. Matrix $A$ may be obtained with the pseudo-inverse of $X$ obtained via the SVD:
@@ -343,17 +343,34 @@ $$
 
 The new measurement space works if there exists a matrix $S$ satisfying $S T = I$.
 
+===========================================
+
+<!--
 In a 2-subsystem case, we have
 
 $$
 {}^{1} \! S {}^{1} \! T = I, \qquad {}^{2} \! S {}^{2} \! T = I.
 $$
+-->
 
-Our target is to find a bilinear function $\Gamma ({}^{1} \! T, {}^{2} \! T)$, which satisfies
+We define two functions $\Phi (i)$ and $\Psi (i)$, which are sets following
+
+$$
+\Phi (i) = \left \{ \{ g_{j} (\vec{x}) \} (j \in \{ 1, 2, \cdots, i \}) \vert \mathbf{rank} \left( \{ g_{j} (\vec{x}) \} \right) \leq i \right \}, \\
+\Psi (i) = \left \{ T \vert T \in \mathbb{R}^{i \times N}, \mathbf{rank} \left( T \right) \leq i \right \}.
+$$
+
+It's obvious that set $\Phi (i)$ and $\Psi (i)$ can be expressed with each other. We focus on $\Psi (i)$.
+
+We define a function $\Pi (G_{1}, G_{2})$
+
+Our target is to find a function $\Gamma ({}^{1} \! T, {}^{2} \! T)$, which satisfies
 
 $$
 \forall {}^{1} \! T, {}^{2} \! T \in M(r), \quad \Gamma ({}^{1} \! T, {}^{2} \! T) \in M(r'),
 $$
+
+====================================================
 
 Where
 
@@ -410,29 +427,84 @@ $$
 \end{aligned}
 $$
 
+Noting: Our Jacobian matrix is defined in a numerator layout, which means
+
+$$
+\nabla_{\vec{x}_{n \times 1}} \Theta_{N \times 1} = \begin{bmatrix}
+   \frac{\partial \Theta_{1}}{\partial x_{1}} & \frac{\partial \Theta_{2}}{\partial x_{2}} & \cdots & \frac{\partial \Theta_{N}}{\partial x_{n}} \\
+   \frac{\partial \Theta_{2}}{\partial x_{1}} & \frac{\partial \Theta_{2}}{\partial x_{2}} & \cdots & \frac{\partial \Theta_{N}}{\partial x_{n}} \\
+   \vdots & \vdots & \ddots & \vdots \\
+   \frac{\partial \Theta_{N}}{\partial x_{1}} & \frac{\partial \Theta_{2}}{\partial x_{2}} & \cdots & \frac{\partial \Theta_{N}}{\partial x_{n}}
+\end{bmatrix}_{N \times n}.
+$$
+
 We define
 
 $$
 \gamma_{1} (\vec{x}) = \Bigg( \bigg( \nabla_{\vec{x}} \Theta (\vec{x}) \bigg) f(\vec{x}) \Bigg), \qquad
 \gamma_{2} (\vec{x}) = \bigg( \Theta (\vec{x}) \bigg)^{\top}. \\
-\Gamma_{1} = [\underbrace{\gamma_{1} (\vec{x}_{1}), \quad \gamma_{1} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{1} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}], \\
-\Gamma_{2} = [\underbrace{\gamma_{2} (\vec{x}_{1}), \quad \gamma_{2} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{2} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}].
+\Gamma_{1} = [\underbrace{\gamma_{1} (\vec{x}_{1}), \quad \gamma_{1} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{1} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}]^{\top}, \\
+\Gamma_{2} = [\underbrace{\gamma_{2} (\vec{x}_{1}), \quad \gamma_{2} (\vec{x}_{2}), \quad \cdots, \quad \gamma_{2} (\vec{x}_{m})}_{\text{Snapshot of } m \text{ moments}}]^{\top}.
 $$
 
 The equation is simplified:
 
 $$
-\gamma_{1} (\vec{x}) \vec{\xi}_{j} = \gamma_{2} (\vec{x}) \lambda_{j} \vec{\xi}_{j}. \\
+\gamma_{1} (\vec{x}_{k}) \vec{\xi}_{j} = \gamma_{2} (\vec{x}_{k}) \lambda_{j} \vec{\xi}_{j}. \\
 \Downarrow \\
-\Gamma_{1} \vec{\xi}_{j} = \Gamma_{2} \lambda_{j} \vec{\xi}_{j}.
+\Gamma_{1} \vec{\xi}_{j} = \Gamma_{2} \lambda_{j} \vec{\xi}_{j}. \\
+\Downarrow \\
+\underbrace{\Xi}_{\Gamma_{2}^{\dagger} \Gamma_{1}} \vec{\xi}_{j} = \lambda_{j} \vec{\xi}_{j}
 $$
 
-Eigenpairs $\left( \lambda_{j}, \vec{\xi}_{j} \right)$ forms the eigen system of $\Gamma_{2}^{\dagger} \Gamma_{1}$. Eigenfunctions $\varphi (\vec{x})$ is
+Eigenpairs $\left( \lambda_{j}, \vec{\xi}_{j} \right)$ forms the eigen system of matrix $\Xi = \Gamma_{2}^{\dagger} \Gamma_{1}$. Eigenfunctions $\varphi (\vec{x})$ is
 
 $$
 \varphi (\vec{x}) = \begin{pmatrix}
-   \varphi_{1} (\vec{x}) \\ \vdots \\ \varphi_{j} (\vec{x}) \\ \vdots \\ \varphi_{r} (\vec{x})
+   \varphi_{1} (\vec{x}) \\ \vdots \\ \varphi_{j} (\vec{x}) \\ \vdots \\ \varphi_{N} (\vec{x})
 \end{pmatrix} = \begin{bmatrix}
-   \vec{\xi}_{1}^{\top} \\ \vdots \\ \vec{\xi}_{j}^{\top} \\ \vdots \\ \vec{\xi}_{r}^{\top}
+   \vec{\xi}_{1}^{\top} \\ \vdots \\ \vec{\xi}_{j}^{\top} \\ \vdots \\ \vec{\xi}_{N}^{\top}
 \end{bmatrix} \Theta (\vec{x}).
 $$
+
+Similar to common approaches in data-driven approximation of Koopman operators, we apply truncated SVD to obtain $\Xi = \Gamma_{2}^{\dagger} \Gamma_{1}$:
+
+1. $\Gamma_{1}$ and $\Gamma_{2}$ have the following relationship:
+
+   $$
+   \begin{aligned}
+    \Gamma_{1_{m \times N}} &= \Gamma_{2_{m \times N}} \Xi_{N \times N}  \\
+    \Xi_{N \times N} &= \argmin_{\Xi}{\lVert \Gamma_{2_{m \times N}} - \Xi_{N \times N}\Gamma_{1_{m \times N}} \rVert_{F}} \\
+    &= \Gamma_{2_{m \times N}}^{\dagger} \Gamma_{1_{N \times m}},
+   \end{aligned}
+   $$
+
+   where $\lVert \cdot \rVert_{F}$ is the Frobenius norm and $\dagger$ denotes pseudo-inverse.
+2. Compute the singular value decomposition of $\Gamma_{2_{m \times N}}$, and truncate to $r$-th rank.
+
+   $$
+   \begin{aligned}
+   \Gamma_{2_{m \times N}} &= U_{m \times N} \Sigma_{N \times N} (V_{N \times N})^{H}\\
+   &\approx \tilde{U}_{m \times r} \tilde{\Sigma}_{r \times r} (\tilde{V}_{N \times r})^{H},
+   \end{aligned}
+   $$
+
+   where $H$ denotes the conjugate transpose, $r$ is the rank of truncation. The left singular vectors $U$ are known as POD modes. $U$, $\tilde{U}$, $V$ and $\tilde{V}$ are orthonormal, they satisfy:
+
+   $$
+   U^{H} U = I_{N \times N}, \quad \tilde{U}^{H} \tilde{U} = I_{r \times r}, \\
+   V^{H} V = I_{N \times N}, \quad \tilde{V}^{H} \tilde{V} = I_{r \times r}.
+   $$
+
+3. Matrix $\Xi$ may be obtained with the pseudo-inverse of $\Gamma_{2}$ obtained via the SVD:
+
+   $$
+   \begin{aligned}
+      \Xi_{N \times N} &= \Gamma_{2_{m \times N}}^{\dagger} \Gamma_{1_{N \times m}}\\
+      &= \tilde{V}_{N \times r} (\tilde{\Sigma}_{r \times r})^{-1} (\tilde{U}_{N \times r})^{H} \Gamma_{1_{N \times m}}
+   \end{aligned}
+   $$
+
+As we obtain $N$-dimensional Koopman eigenfunctions $\varphi(\vec{x})$ with the eigen system of $\Xi$, the truncating rank $r$ should be bigger than $N$, in order to provide more than $N$ leading features of the autonomous dynamical system.
+
+## 5. Whole Process
